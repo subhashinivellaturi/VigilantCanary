@@ -1,0 +1,97 @@
+/* Dashboard Full styles (adapted from provided design) */
+:root {
+  --primary: #0f172a;
+  --secondary: #1e293b;
+  --critical: #ef4444;
+  --high: #f97316;
+  --medium: #f59e0b;
+  --low: #10b981;
+  --accent: #3b82f6;
+  --text-primary: #ffffff;
+  --text-secondary: #94a3b8;
+  --card-bg: rgba(30, 41, 59, 0.7);
+  --sidebar-width: 250px;
+  --border-radius: 12px;
+  --transition: all 0.3s ease;
+}
+
+*{box-sizing:border-box}
+body{font-family:Inter, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial; background:linear-gradient(135deg,var(--primary) 0%,var(--secondary) 100%);color:var(--text-primary);min-height:100vh}
+
+.dashboard-container{display:grid;grid-template-columns:var(--sidebar-width) 1fr;min-height:100vh}
+
+/* Sidebar */
+.sidebar{background:rgba(15,23,42,0.95);backdrop-filter:blur(10px);border-right:1px solid rgba(255,255,255,0.07);padding:2rem 1rem;position:sticky;top:0;height:100vh;overflow:auto}
+.logo{display:flex;align-items:center;gap:12px;padding:0 1rem;margin-bottom:2rem}
+.logo-icon{font-size:2rem;color:var(--accent)}
+.logo-text{font-size:1.25rem;font-weight:700;color:var(--text-primary)}
+.nav-menu{display:flex;flex-direction:column;gap:0.5rem}
+.nav-item{display:flex;align-items:center;gap:12px;padding:0.9rem;color:var(--text-secondary);text-decoration:none;border-radius:var(--border-radius);transition:var(--transition)}
+.nav-item:hover{background:rgba(59,130,246,0.08);color:var(--text-primary);transform:translateX(4px)}
+.nav-item.active{background:rgba(59,130,246,0.14);color:var(--accent);border-left:4px solid var(--accent)}
+
+/* Main content */
+.main-content{padding:2rem;overflow:auto}
+.header{display:flex;justify-content:space-between;align-items:center;margin-bottom:1.5rem}
+.page-title{font-size:2rem;font-weight:700}
+.status-indicator{display:flex;align-items:center;gap:8px;padding:0.35rem 0.75rem;border-radius:20px;background:#0b1220;font-size:0.9rem}
+.status-dot{width:8px;height:8px;background:var(--low);border-radius:50%;animation:pulse 2s infinite}
+
+/* Severity cards */
+.severity-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:1.25rem;margin-bottom:2rem}
+.severity-card{background:var(--card-bg);backdrop-filter:blur(8px);border-radius:var(--border-radius);padding:1.25rem;border:1px solid rgba(255,255,255,0.06);transition:var(--transition);position:relative}
+.severity-card:hover{transform:translateY(-6px);box-shadow:0 12px 30px rgba(2,6,23,0.6)}
+.severity-card::before{content:'';position:absolute;left:0;right:0;top:0;height:4px;border-radius:inherit}
+.severity-card.critical::before{background:linear-gradient(90deg,var(--critical),transparent)}
+.severity-card.high::before{background:linear-gradient(90deg,var(--high),transparent)}
+.severity-card.medium::before{background:linear-gradient(90deg,var(--medium),transparent)}
+.severity-card.low::before{background:linear-gradient(90deg,var(--low),transparent)}
+.severity-header{display:flex;align-items:center;gap:12px;margin-bottom:0.5rem}
+.severity-icon{font-size:1.5rem}
+.severity-title{font-size:1rem;font-weight:600;color:var(--text-secondary)}
+.severity-count{font-size:2rem;font-weight:800}
+.severity-trend{font-size:0.85rem;color:var(--text-secondary)}
+
+/* Recent Scans */
+.section-title{font-size:1.25rem;margin:1.25rem 0;padding-bottom:0.5rem;border-bottom:2px solid rgba(59,130,246,0.14)}
+.scans-table{width:100%;background:var(--card-bg);backdrop-filter:blur(8px);border-radius:var(--border-radius);overflow:hidden;border:1px solid rgba(255,255,255,0.04)}
+.scans-table thead th{padding:0.85rem;text-align:left;color:var(--text-secondary);font-weight:600}
+.scans-table td{padding:0.85rem;border-top:1px solid rgba(255,255,255,0.02)}
+.scan-badge{padding:0.25rem 0.6rem;border-radius:8px;font-size:0.85rem;background:rgba(59,130,246,0.08);color:var(--accent)}
+.status-badge{padding:0.25rem 0.6rem;border-radius:16px;font-weight:600}
+.status-completed{background:rgba(16,185,129,0.12);color:var(--low)}
+.status-running{background:rgba(59,130,246,0.12);color:var(--accent)}
+.status-failed{background:rgba(239,68,68,0.12);color:var(--critical)}
+
+/* Port scanner */
+.scanner-card{background:var(--card-bg);backdrop-filter:blur(8px);border-radius:var(--border-radius);padding:1.25rem;margin:1.25rem 0;border:1px solid rgba(59,130,246,0.08)}
+.scanner-controls{display:grid;grid-template-columns:1fr auto auto;gap:0.75rem;margin-bottom:1rem}
+.scan-input{padding:0.75rem;border-radius:8px;background:rgba(15,23,42,0.7);border:1px solid rgba(255,255,255,0.04);color:var(--text-primary)}
+.btn{padding:0.6rem 0.9rem;border-radius:10px;border:0;background:linear-gradient(135deg,var(--accent),#1d4ed8);color:#fff;cursor:pointer}
+.btn:hover{filter:brightness(1.04);transform:translateY(-2px)}
+.port-results{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:0.75rem}
+.port-item{background:rgba(15,23,42,0.6);padding:0.75rem;border-radius:8px;text-align:center}
+.port-number{font-weight:700;color:var(--accent)}
+
+/* Risks */
+.risks-panel{display:grid;gap:0.75rem;margin:1.25rem 0}
+.risk-item{background:var(--card-bg);padding:1rem;border-radius:10px;border-left:4px solid var(--critical)}
+.risk-severity{display:inline-block;padding:0.25rem 0.6rem;border-radius:20px;background:var(--critical);color:#fff;font-size:0.8rem;font-weight:700}
+.risk-title{font-weight:700;margin-top:0.5rem}
+.risk-target{font-family:monospace;color:var(--text-secondary);font-size:0.9rem}
+
+/* Quick actions */
+.grid-3{display:grid;grid-template-columns:repeat(3,1fr);gap:1rem}
+.card{padding:1rem;border-radius:12px;background:linear-gradient(180deg,rgba(255,255,255,0.02),transparent);cursor:pointer;text-align:center;font-weight:700}
+
+/* Animations and responsive */
+@keyframes pulse{0%{opacity:1}50%{opacity:0.5}100%{opacity:1}}
+@media (max-width:1024px){.dashboard-container{grid-template-columns:1fr}.sidebar{position:fixed;left:-100%;top:0}.sidebar.active{left:0}.menu-toggle{display:block;position:fixed;top:1rem;left:1rem;z-index:1001;background:var(--accent);color:#fff;border-radius:10px;padding:0.6rem;border:0}}
+@media (max-width:768px){.scanner-controls{grid-template-columns:1fr}.severity-grid{grid-template-columns:1fr}.port-results{grid-template-columns:repeat(2,1fr);}.grid-3{grid-template-columns:1fr}}
+
+/* Utility */
+.text-center{text-align:center}
+.small{font-size:0.9rem;color:var(--text-secondary)}
+
+/* Make sure focus is visible */
+:focus{outline:3px solid rgba(99,102,241,0.12);outline-offset:3px}

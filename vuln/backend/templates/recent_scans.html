@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Recent Scans — Vigilant Canary</title>
+    <link rel="stylesheet" href="/static/recent_scans.css" />
+</head>
+<body>
+    <header class="header">
+        <div class="container">
+            <div class="header-content">
+                <div>
+                    <h1>Recent Scans</h1>
+                    <p class="subtitle">Vulnerability scan history and status</p>
+                </div>
+                <a href="/dashboard" class="btn-back">← Back to Dashboard</a>
+            </div>
+        </div>
+    </header>
+
+    <main class="container">
+        <!-- Stats Overview -->
+        <section class="stats-overview">
+            <div class="stat-card">
+                <div class="stat-icon">📊</div>
+                <div class="stat-content">
+                    <div class="stat-label">Total Scans</div>
+                    <div class="stat-value">{{ total }}</div>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon">✅</div>
+                <div class="stat-content">
+                    <div class="stat-label">Completed</div>
+                    <div class="stat-value" id="completed-count">–</div>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon">🔄</div>
+                <div class="stat-content">
+                    <div class="stat-label">Running</div>
+                    <div class="stat-value" id="running-count">–</div>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon">❌</div>
+                <div class="stat-content">
+                    <div class="stat-label">Failed</div>
+                    <div class="stat-value" id="failed-count">–</div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Filters -->
+        <section class="filters">
+            <div class="filter-group">
+                <label for="status-filter">Filter by Status:</label>
+                <select id="status-filter" class="filter-select">
+                    <option value="">All Statuses</option>
+                    <option value="completed">✅ Completed</option>
+                    <option value="running">🔄 Running</option>
+                    <option value="failed">❌ Failed</option>
+                </select>
+            </div>
+            <div class="filter-group">
+                <label for="search-input">Search Target:</label>
+                <input 
+                    type="text" 
+                    id="search-input" 
+                    placeholder="Search by URL, domain, or IP..." 
+                    class="filter-input"
+                />
+            </div>
+            <button id="clear-filters" class="btn-clear">Clear Filters</button>
+        </section>
+
+        <!-- Scans Table/List -->
+        <section class="scans-section">
+            <div class="section-header">
+                <h2>Scan Records</h2>
+                <span class="scan-count" id="visible-count">{{ total }} scan(s)</span>
+            </div>
+
+            <div class="scans-container">
+                {% if scans %}
+                    <div class="scans-list">
+                        {% for scan in scans %}
+                            <div class="scan-item" data-status="{{ scan.status }}" data-target="{{ scan.target_url|lower }}">
+                                <div class="scan-item-header">
+                                    <div class="scan-target">
+                                        <div class="scan-icon">
+                                            {% if 'port' in scan.scan_types|lower or 'port_scan' in scan.scan_types|lower %}
+                                                🔌
+                                            {% elif 'subdomain' in scan.scan_types|lower %}
+                                                🌐
+                                            {% elif 'xss' in scan.scan_types|lower %}
+                                                🔓
+                                            {% elif 'sql' in scan.scan_types|lower %}
+                                                💾
+                                            {% else %}
+                                                🛡️
+                                            {% endif %}
+                                        </div>
+                                        <div>
+                                            <div class="scan-url">{{ scan.target_url }}</div>
+                                            <div class="scan-types">
+                                                {% for scan_type in scan.scan_types %}
+                                                    <span class="badge badge-type">{{ scan_type }}</span>
+                                                {% endfor %}
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="scan-item-meta">
+                                    <div class="meta-group">
+                                        <div class="meta-label">Status</div>
+                                        <div class="status-badge status-{{ scan.status }}">
+                                            {% if scan.status == 'completed' %}
+                                                ✅ Completed
+                                            {% elif scan.status == 'running' %}
+                                                🔄 Running
+                                            {% elif scan.status == 'failed' %}
+                                                ❌ Failed
+                                            {% else %}
+                                                📋 {{ scan.status|title }}
+                                            {% endif %}
+                                        </div>
+                                    </div>
+
+                                    <div class="meta-group">
+                                        <div class="meta-label">Timestamp</div>
+                                        <div class="timestamp">{{ scan.timestamp }}</div>
+                                    </div>
+
+                                    <div class="meta-group">
+                                        <div class="meta-label">Findings</div>
+                                        <div class="findings-count">
+                                            {% if scan.total_findings > 0 %}
+                                                <span class="badge badge-findings">{{ scan.total_findings }}</span>
+                                            {% else %}
+                                                <span class="badge badge-empty">None</span>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+
+                                    <div class="meta-group">
+                                        <div class="meta-label">Risk Level</div>
+                                        <div class="risk-level risk-{{ scan.risk_status|lower }}">
+                                            {{ scan.risk_status|title }}
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="scan-item-actions">
+                                    <button class="btn-action btn-view" data-scan-id="{{ scan.id }}" title="View Details">
+                                        👁️ View
+                                    </button>
+                                    <button class="btn-action btn-export" data-scan-id="{{ scan.id }}" title="Export Scan">
+                                        💾 Export
+                                    </button>
+                                </div>
+                            </div>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <div class="empty-state">
+                        <div class="empty-icon">📭</div>
+                        <h3>No Scans Found</h3>
+                        <p>Start a new vulnerability scan to see results here.</p>
+                        <a href="/" class="btn-primary">Start New Scan</a>
+                    </div>
+                {% endif %}
+            </div>
+        </section>
+
+        <!-- Scan Type Legend -->
+        <section class="legend">
+            <h3>Scan Type Reference</h3>
+            <div class="legend-grid">
+                <div class="legend-item">
+                    <span class="legend-icon">🛡️</span>
+                    <span>Vulnerability Scan</span>
+                </div>
+                <div class="legend-item">
+                    <span class="legend-icon">🔌</span>
+                    <span>Port Scan</span>
+                </div>
+                <div class="legend-item">
+                    <span class="legend-icon">🌐</span>
+                    <span>Subdomain Enumeration</span>
+                </div>
+                <div class="legend-item">
+                    <span class="legend-icon">🔓</span>
+                    <span>XSS Detection</span>
+                </div>
+                <div class="legend-item">
+                    <span class="legend-icon">💾</span>
+                    <span>SQLi Detection</span>
+                </div>
+                <div class="legend-item">
+                    <span class="legend-icon">⚠️</span>
+                    <span>Security Headers</span>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer class="footer">
+        <div class="container">
+            <p>&copy; 2024 Vigilant Canary Security Scanner. All Rights Reserved.</p>
+            <p class="footer-note">Auto-refresh every 30 seconds • Last updated: <span id="last-update">–</span></p>
+        </div>
+    </footer>
+
+    <script>
+        // Auto-refresh mechanism
+        function updateLastRefreshTime() {
+            const now = new Date();
+            document.getElementById('last-update').textContent = now.toLocaleTimeString();
+        }
+
+        // Filter and search functionality
+        function applyFilters() {
+            const statusFilter = document.getElementById('status-filter').value.toLowerCase();
+            const searchTerm = document.getElementById('search-input').value.toLowerCase();
+            const scanItems = document.querySelectorAll('.scan-item');
+            let visibleCount = 0;
+
+            scanItems.forEach(item => {
+                const status = item.getAttribute('data-status').toLowerCase();
+                const target = item.getAttribute('data-target');
+                
+                const statusMatch = !statusFilter || status === statusFilter;
+                const searchMatch = !searchTerm || target.includes(searchTerm);
+                
+                if (statusMatch && searchMatch) {
+                    item.style.display = '';
+                    visibleCount++;
+                } else {
+                    item.style.display = 'none';
+                }
+            });
+
+            document.getElementById('visible-count').textContent = `${visibleCount} scan(s)`;
+            updateStatCounts();
+        }
+
+        function updateStatCounts() {
+            const scanItems = document.querySelectorAll('.scan-item[style=""]');
+            let completed = 0, running = 0, failed = 0;
+
+            scanItems.forEach(item => {
+                const status = item.getAttribute('data-status').toLowerCase();
+                if (status === 'completed') completed++;
+                else if (status === 'running') running++;
+                else if (status === 'failed') failed++;
+            });
+
+            document.getElementById('completed-count').textContent = completed;
+            document.getElementById('running-count').textContent = running;
+            document.getElementById('failed-count').textContent = failed;
+        }
+
+        // Event listeners
+        document.getElementById('status-filter').addEventListener('change', applyFilters);
+        document.getElementById('search-input').addEventListener('input', applyFilters);
+        
+        document.getElementById('clear-filters').addEventListener('click', () => {
+            document.getElementById('status-filter').value = '';
+            document.getElementById('search-input').value = '';
+            applyFilters();
+        });
+
+        // View detail (placeholder)
+        document.querySelectorAll('.btn-view').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const scanId = btn.getAttribute('data-scan-id');
+                alert('View details for scan: ' + scanId + '\n\nFull implementation would show detailed findings.');
+            });
+        });
+
+        // Export action (placeholder)
+        document.querySelectorAll('.btn-export').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const scanId = btn.getAttribute('data-scan-id');
+                alert('Export scan ' + scanId + ' as CSV/JSON/PDF\n\nFull implementation would prepare export.');
+            });
+        });
+
+        // Initialize on page load
+        updateLastRefreshTime();
+        updateStatCounts();
+
+        // Auto-refresh every 30 seconds
+        setInterval(() => {
+            updateLastRefreshTime();
+        }, 30000);
+    </script>
+</body>
+</html>

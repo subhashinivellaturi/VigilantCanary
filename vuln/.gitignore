@@ -1,0 +1,29 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+*.sqlite3
+.env
+.env.*
+venv/
+.venv/
+ENV/
+.envrc
+
+# VS Code
+.vscode/
+
+# Node
+node_modules/
+frontend/node_modules/
+frontend/dist/
+
+# Python build artifacts
+build/
+dist/
+.eggs/
+*.egg-info/
+
+# Logs
+*.log

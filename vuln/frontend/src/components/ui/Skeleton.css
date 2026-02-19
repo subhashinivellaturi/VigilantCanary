@@ -1,0 +1,53 @@
+.vc-skeleton {
+  width: 100%;
+  height: 16px;
+  background: linear-gradient(
+    90deg,
+    #f0f4f8 0%,
+    #e2e8f0 50%,
+    #f0f4f8 100%
+  );
+  background-size: 200% 100%;
+  border-radius: 4px;
+  animation: skeletonLoading 2s infinite;
+  margin-bottom: 12px;
+}
+
+.vc-skeleton:last-child {
+  margin-bottom: 0;
+}
+
+.vc-skeleton + .vc-skeleton {
+  margin-top: 0;
+}
+
+.vc-skeleton--circle {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  margin: 0;
+  margin-bottom: 12px;
+}
+
+.vc-skeleton--text {
+  height: 14px;
+}
+
+.vc-skeleton--large {
+  height: 24px;
+}
+
+.vc-skeleton--group {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+@keyframes skeletonLoading {
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
+  }
+}

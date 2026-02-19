@@ -1,0 +1,458 @@
+/* MODEL PERFORMANCE STYLES */
+.model-performance-container {
+  padding: 32px;
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+.performance-header {
+  margin-bottom: 32px;
+}
+
+.performance-header__title {
+  font-size: 28px;
+  font-weight: 700;
+  color: #212529;
+  margin: 0 0 8px;
+}
+
+.performance-header__subtitle {
+  font-size: 14px;
+  color: #6c757d;
+  margin: 0;
+}
+
+/* Performance Metrics Grid */
+.performance-metrics {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 20px;
+  margin-bottom: 32px;
+}
+
+.metric-card {
+  background: white;
+  border: 1px solid #e9ecef;
+  border-radius: 12px;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  transition: all 200ms ease-in-out;
+}
+
+.metric-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+}
+
+.metric-card__label {
+  font-size: 12px;
+  font-weight: 600;
+  color: #abb5be;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin: 0;
+}
+
+.metric-card__value {
+  font-size: 32px;
+  font-weight: 700;
+  color: #212529;
+  margin: 0;
+  background: linear-gradient(135deg, #0066ff, #00b4d8);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.metric-card__change {
+  font-size: 12px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.metric-card__change--positive {
+  color: #28a745;
+}
+
+.metric-card__change--negative {
+  color: #dc3545;
+}
+
+.metric-card__progress {
+  height: 4px;
+  background: #e9ecef;
+  border-radius: 2px;
+  overflow: hidden;
+  margin-top: 8px;
+}
+
+.metric-card__progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #0066ff, #00b4d8);
+  transition: width 300ms ease-in-out;
+}
+
+/* Confusion Matrix */
+.confusion-matrix-section {
+  background: white;
+  border: 1px solid #e9ecef;
+  border-radius: 12px;
+  padding: 24px;
+  margin-bottom: 32px;
+}
+
+.confusion-matrix-section__title {
+  font-size: 16px;
+  font-weight: 600;
+  color: #212529;
+  margin: 0 0 20px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid #e9ecef;
+}
+
+.confusion-matrix {
+  display: grid;
+  grid-template-columns: auto repeat(3, 80px);
+  gap: 2px;
+  background: linear-gradient(135deg, #f8f9fa 0%, #f0f3f7 100%);
+  padding: 20px;
+  border-radius: 8px;
+}
+
+.matrix-cell {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 40px;
+  font-size: 13px;
+  font-weight: 600;
+  padding: 8px;
+  border-radius: 4px;
+  background: white;
+  text-align: center;
+}
+
+.matrix-cell--header {
+  background: #0066ff;
+  color: white;
+  font-weight: 700;
+}
+
+.matrix-cell--label {
+  text-align: right;
+  color: #212529;
+}
+
+.matrix-cell--value {
+  color: #212529;
+}
+
+.matrix-cell--tp {
+  background: linear-gradient(135deg, #d4edda 0%, #c3e6cb 100%);
+  color: #155724;
+}
+
+.matrix-cell--fn {
+  background: linear-gradient(135deg, #f8d7da 0%, #f5c6cb 100%);
+  color: #721c24;
+}
+
+.matrix-cell--fp {
+  background: linear-gradient(135deg, #fff3cd 0%, #ffeeba 100%);
+  color: #856404;
+}
+
+.matrix-cell--tn {
+  background: linear-gradient(135deg, #d1ecf1 0%, #bee5eb 100%);
+  color: #0c5460;
+}
+
+/* ROC Curve */
+.roc-curve-section {
+  background: white;
+  border: 1px solid #e9ecef;
+  border-radius: 12px;
+  padding: 24px;
+  margin-bottom: 32px;
+}
+
+.roc-curve-section__title {
+  font-size: 16px;
+  font-weight: 600;
+  color: #212529;
+  margin: 0 0 20px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid #e9ecef;
+}
+
+.roc-curve-placeholder {
+  background: linear-gradient(135deg, #f8f9fa 0%, #f0f3f7 100%);
+  border: 2px dashed #e9ecef;
+  border-radius: 8px;
+  height: 300px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #abb5be;
+  font-size: 14px;
+  text-align: center;
+}
+
+.roc-legend {
+  display: flex;
+  gap: 24px;
+  margin-top: 16px;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.roc-legend__item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+}
+
+.roc-legend__color {
+  width: 12px;
+  height: 12px;
+  border-radius: 2px;
+}
+
+/* Performance Comparison */
+.comparison-section {
+  background: white;
+  border: 1px solid #e9ecef;
+  border-radius: 12px;
+  padding: 24px;
+  margin-bottom: 32px;
+}
+
+.comparison-section__title {
+  font-size: 16px;
+  font-weight: 600;
+  color: #212529;
+  margin: 0 0 20px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid #e9ecef;
+}
+
+.comparison-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.comparison-table th {
+  background: #f8f9fa;
+  padding: 12px 16px;
+  text-align: left;
+  font-size: 12px;
+  font-weight: 700;
+  color: #6c757d;
+  border-bottom: 2px solid #e9ecef;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.comparison-table td {
+  padding: 12px 16px;
+  border-bottom: 1px solid #e9ecef;
+  font-size: 13px;
+  color: #6c757d;
+}
+
+.comparison-table tr:hover {
+  background: #f8f9fa;
+}
+
+.comparison-table tr:last-child td {
+  border-bottom: none;
+}
+
+.comparison-table__model {
+  font-weight: 600;
+  color: #212529;
+}
+
+.comparison-table__metric {
+  color: #0066ff;
+  font-weight: 600;
+  font-family: 'JetBrains Mono', monospace;
+}
+
+.comparison-table__icon {
+  color: #28a745;
+  font-size: 14px;
+}
+
+/* Test Results */
+.test-results-section {
+  background: linear-gradient(135deg, #f8f9fa 0%, #f0f3f7 100%);
+  border: 1px solid #e9ecef;
+  border-radius: 12px;
+  padding: 24px;
+  margin-bottom: 32px;
+}
+
+.test-results-section__title {
+  font-size: 16px;
+  font-weight: 600;
+  color: #212529;
+  margin: 0 0 20px;
+}
+
+.test-results-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 16px;
+}
+
+.test-result-item {
+  background: white;
+  border: 1px solid #e9ecef;
+  border-radius: 8px;
+  padding: 16px;
+}
+
+.test-result-item__name {
+  font-size: 13px;
+  font-weight: 600;
+  color: #212529;
+  margin: 0 0 12px;
+}
+
+.test-result-item__bar {
+  height: 24px;
+  background: #e9ecef;
+  border-radius: 4px;
+  overflow: hidden;
+  margin-bottom: 8px;
+}
+
+.test-result-item__progress {
+  height: 100%;
+  background: linear-gradient(90deg, #0066ff, #00b4d8);
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  padding-right: 8px;
+  color: white;
+  font-size: 11px;
+  font-weight: 700;
+  transition: width 300ms ease-in-out;
+}
+
+.test-result-item__status {
+  font-size: 12px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.test-result-item__status--pass {
+  color: #28a745;
+}
+
+.test-result-item__status--fail {
+  color: #dc3545;
+}
+
+/* Export Actions */
+.export-section {
+  display: flex;
+  gap: 12px;
+  padding: 24px;
+  background: #f8f9fa;
+  border-radius: 12px;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.export-btn {
+  padding: 12px 24px;
+  border: none;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 200ms ease-in-out;
+  height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.export-btn--primary {
+  background: #0066ff;
+  color: white;
+}
+
+.export-btn--primary:hover {
+  background: #0052cc;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 102, 255, 0.2);
+}
+
+.export-btn--secondary {
+  background: white;
+  border: 1px solid #e9ecef;
+  color: #6c757d;
+}
+
+.export-btn--secondary:hover {
+  border-color: #0066ff;
+  color: #0066ff;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .model-performance-container {
+    padding: 16px;
+  }
+
+  .performance-metrics {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+
+  .confusion-matrix {
+    grid-template-columns: auto 1fr;
+    gap: 1px;
+    padding: 12px;
+  }
+
+  .matrix-cell {
+    min-height: 30px;
+    font-size: 11px;
+    padding: 4px;
+  }
+
+  .roc-curve-placeholder {
+    height: 200px;
+  }
+
+  .test-results-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .export-section {
+    flex-direction: column;
+  }
+
+  .export-btn {
+    width: 100%;
+  }
+
+  .comparison-table {
+    font-size: 12px;
+  }
+
+  .comparison-table th,
+  .comparison-table td {
+    padding: 8px 12px;
+  }
+}

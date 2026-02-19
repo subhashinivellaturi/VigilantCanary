@@ -1,0 +1,1033 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vigilant Canary - Security Dashboard</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary: #0f172a;
+            --secondary: #1e293b;
+            --tertiary: #334155;
+            --accent: #3b82f6;
+            --danger: #ef4444;
+            --warning: #f59e0b;
+            --success: #10b981;
+            --info: #06b6d4;
+            --text: #e2e8f0;
+            --text-muted: #94a3b8;
+            --border: #475569;
+            --shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+            --shadow-lg: 0 20px 25px rgba(0, 0, 0, 0.4);
+        }
+
+        body {
+            font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, sans-serif;
+            background-color: var(--primary);
+            color: var(--text);
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+
+        /* Layout */
+        .dashboard {
+            display: grid;
+            grid-template-columns: 250px 1fr;
+            min-height: 100vh;
+            gap: 0;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+            border-right: 1px solid var(--border);
+            padding: 2rem 1rem;
+            position: fixed;
+            left: 0;
+            top: 0;
+            width: 250px;
+            height: 100vh;
+            overflow-y: auto;
+            z-index: 1000;
+            box-shadow: var(--shadow);
+        }
+
+        .sidebar::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .sidebar::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        .sidebar::-webkit-scrollbar-thumb {
+            background: var(--tertiary);
+            border-radius: 3px;
+        }
+
+        .sidebar-header {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            margin-bottom: 2rem;
+            padding-bottom: 1.5rem;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .sidebar-logo {
+            width: 32px;
+            height: 32px;
+            background: linear-gradient(135deg, var(--accent) 0%, var(--info) 100%);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 18px;
+        }
+
+        .sidebar-title {
+            font-size: 14px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: var(--text-muted);
+        }
+
+        .nav-section {
+            margin-bottom: 2rem;
+        }
+
+        .nav-section-title {
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            color: var(--text-muted);
+            margin-bottom: 0.75rem;
+            padding: 0 0.5rem;
+        }
+
+        .nav-item {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.75rem 1rem;
+            margin-bottom: 0.5rem;
+            border-radius: 6px;
+            color: var(--text-muted);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            font-size: 14px;
+        }
+
+        .nav-item:hover {
+            background-color: rgba(59, 130, 246, 0.1);
+            color: var(--accent);
+            border-left: 3px solid var(--accent);
+            padding-left: calc(1rem - 3px);
+        }
+
+        .nav-item.active {
+            background-color: rgba(59, 130, 246, 0.15);
+            color: var(--accent);
+            border-left: 3px solid var(--accent);
+            padding-left: calc(1rem - 3px);
+            font-weight: 600;
+        }
+
+        .nav-icon {
+            width: 18px;
+            height: 18px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* Main Content */
+        .main-content {
+            margin-left: 250px;
+            padding: 2rem;
+        }
+
+        /* Header */
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 3rem;
+            padding-bottom: 1.5rem;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .header-title {
+            font-size: 28px;
+            font-weight: 700;
+            background: linear-gradient(135deg, var(--accent) 0%, var(--info) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .header-subtitle {
+            font-size: 13px;
+            color: var(--text-muted);
+            margin-top: 0.25rem;
+        }
+
+        .header-controls {
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+        }
+
+        .btn {
+            padding: 0.5rem 1rem;
+            border-radius: 6px;
+            border: none;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            text-decoration: none;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--accent) 0%, #2563eb 100%);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 12px rgba(59, 130, 246, 0.4);
+        }
+
+        .btn-secondary {
+            background-color: var(--tertiary);
+            color: var(--text);
+            border: 1px solid var(--border);
+        }
+
+        .btn-secondary:hover {
+            background-color: var(--border);
+        }
+
+        /* Grid Layout */
+        .grid {
+            display: grid;
+            gap: 1.5rem;
+        }
+
+        .grid-2 {
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        }
+
+        .grid-4 {
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        }
+
+        /* Cards */
+        .card {
+            background: linear-gradient(135deg, var(--secondary) 0%, rgba(30, 41, 59, 0.8) 100%);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 1.5rem;
+            box-shadow: var(--shadow);
+            transition: all 0.3s ease;
+        }
+
+        .card:hover {
+            transform: translateY(-4px);
+            box-shadow: var(--shadow-lg);
+            border-color: var(--accent);
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: start;
+            margin-bottom: 1rem;
+        }
+
+        .card-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: var(--text);
+        }
+
+        .card-subtitle {
+            font-size: 12px;
+            color: var(--text-muted);
+            margin-top: 0.25rem;
+        }
+
+        .card-icon {
+            width: 32px;
+            height: 32px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+        }
+
+        /* Severity Cards */
+        .severity-card {
+            position: relative;
+            overflow: hidden;
+        }
+
+        .severity-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background-color: var(--text-muted);
+        }
+
+        .severity-card.critical::before {
+            background-color: var(--danger);
+        }
+
+        .severity-card.high::before {
+            background-color: var(--warning);
+        }
+
+        .severity-card.medium::before {
+            background-color: #f97316;
+        }
+
+        .severity-card.low::before {
+            background-color: var(--info);
+        }
+
+        .severity-value {
+            font-size: 32px;
+            font-weight: 700;
+            margin: 1rem 0;
+            color: var(--text);
+        }
+
+        .severity-label {
+            display: inline-block;
+            padding: 0.25rem 0.75rem;
+            border-radius: 4px;
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .severity-label.critical {
+            background-color: rgba(239, 68, 68, 0.15);
+            color: var(--danger);
+        }
+
+        .severity-label.high {
+            background-color: rgba(245, 158, 11, 0.15);
+            color: var(--warning);
+        }
+
+        .severity-label.medium {
+            background-color: rgba(249, 115, 22, 0.15);
+            color: #f97316;
+        }
+
+        .severity-label.low {
+            background-color: rgba(6, 182, 212, 0.15);
+            color: var(--info);
+        }
+
+        /* Stats */
+        .stats-grid {
+            display: grid;
+            gap: 1rem;
+        }
+
+        .stat-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.75rem 0;
+            border-bottom: 1px solid rgba(75, 85, 99, 0.2);
+        }
+
+        .stat-item:last-child {
+            border-bottom: none;
+        }
+
+        .stat-label {
+            font-size: 13px;
+            color: var(--text-muted);
+        }
+
+        .stat-value {
+            font-size: 16px;
+            font-weight: 700;
+            color: var(--text);
+        }
+
+        .stat-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.25rem;
+            padding: 0.25rem 0.75rem;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: 600;
+        }
+
+        .stat-badge.success {
+            background-color: rgba(16, 185, 129, 0.15);
+            color: var(--success);
+        }
+
+        .stat-badge.danger {
+            background-color: rgba(239, 68, 68, 0.15);
+            color: var(--danger);
+        }
+
+        .stat-badge.warning {
+            background-color: rgba(245, 158, 11, 0.15);
+            color: var(--warning);
+        }
+
+        /* Progress Bar */
+        .progress-bar {
+            height: 6px;
+            background-color: var(--tertiary);
+            border-radius: 3px;
+            overflow: hidden;
+            margin-top: 0.5rem;
+        }
+
+        .progress-fill {
+            height: 100%;
+            border-radius: 3px;
+            transition: width 0.3s ease;
+        }
+
+        .progress-fill.critical {
+            background: linear-gradient(90deg, var(--danger) 0%, #dc2626 100%);
+        }
+
+        .progress-fill.high {
+            background: linear-gradient(90deg, var(--warning) 0%, #d97706 100%);
+        }
+
+        .progress-fill.medium {
+            background: linear-gradient(90deg, #f97316 0%, #ea580c 100%);
+        }
+
+        .progress-fill.low {
+            background: linear-gradient(90deg, var(--info) 0%, #0891b2 100%);
+        }
+
+        /* Recent Activity */
+        .activity-list {
+            list-style: none;
+        }
+
+        .activity-item {
+            display: flex;
+            gap: 1rem;
+            padding: 1rem 0;
+            border-bottom: 1px solid rgba(75, 85, 99, 0.2);
+        }
+
+        .activity-item:last-child {
+            border-bottom: none;
+        }
+
+        .activity-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            margin-top: 0.25rem;
+            flex-shrink: 0;
+        }
+
+        .activity-dot.critical {
+            background-color: var(--danger);
+        }
+
+        .activity-dot.high {
+            background-color: var(--warning);
+        }
+
+        .activity-dot.medium {
+            background-color: #f97316;
+        }
+
+        .activity-dot.low {
+            background-color: var(--info);
+        }
+
+        .activity-content {
+            flex: 1;
+        }
+
+        .activity-title {
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--text);
+        }
+
+        .activity-description {
+            font-size: 12px;
+            color: var(--text-muted);
+            margin-top: 0.25rem;
+        }
+
+        .activity-time {
+            font-size: 11px;
+            color: var(--text-muted);
+            margin-top: 0.5rem;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .dashboard {
+                grid-template-columns: 1fr;
+            }
+
+            .sidebar {
+                position: fixed;
+                left: -250px;
+                transition: left 0.3s ease;
+                z-index: 2000;
+            }
+
+            .sidebar.open {
+                left: 0;
+            }
+
+            .main-content {
+                margin-left: 0;
+            }
+
+            .toggle-sidebar {
+                display: flex;
+            }
+
+            .header-title {
+                font-size: 22px;
+            }
+
+            .grid-4 {
+                grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            }
+        }
+
+        @media (max-width: 480px) {
+            .sidebar {
+                width: 100%;
+                left: -100%;
+            }
+
+            .main-content {
+                padding: 1rem;
+            }
+
+            .header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 1rem;
+            }
+
+            .header-controls {
+                width: 100%;
+            }
+
+            .btn {
+                flex: 1;
+                justify-content: center;
+            }
+
+            .grid-2,
+            .grid-4 {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* Animations */
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .card {
+            animation: fadeIn 0.5s ease forwards;
+        }
+
+        .card:nth-child(1) {
+            animation-delay: 0.1s;
+        }
+
+        .card:nth-child(2) {
+            animation-delay: 0.2s;
+        }
+
+        .card:nth-child(3) {
+            animation-delay: 0.3s;
+        }
+
+        .card:nth-child(4) {
+            animation-delay: 0.4s;
+        }
+
+        /* Utility Classes */
+        .text-center {
+            text-align: center;
+        }
+
+        .mt-1 {
+            margin-top: 0.5rem;
+        }
+
+        .mt-2 {
+            margin-top: 1rem;
+        }
+
+        .toggle-sidebar {
+            display: none;
+            background: none;
+            border: none;
+            color: var(--text);
+            font-size: 24px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <div class="dashboard">
+        <!-- Sidebar Navigation -->
+        <div class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <div class="sidebar-logo">VC</div>
+                <div>
+                    <div class="sidebar-title">Vigilant</div>
+                    <div class="sidebar-title" style="font-size: 10px; margin-top: -4px;">Canary</div>
+                </div>
+            </div>
+
+            <div class="nav-section">
+                <div class="nav-section-title">Main</div>
+                <a href="#" class="nav-item active" onclick="switchTab('dashboard')">
+                    <span class="nav-icon">📊</span>
+                    <span>Dashboard</span>
+                </a>
+                <a href="#" class="nav-item" onclick="switchTab('scans')">
+                    <span class="nav-icon">🔍</span>
+                    <span>Scans</span>
+                </a>
+                <a href="#" class="nav-item" onclick="switchTab('vulnerabilities')">
+                    <span class="nav-icon">⚠️</span>
+                    <span>Vulnerabilities</span>
+                </a>
+                <a href="#" class="nav-item" onclick="switchTab('assets')">
+                    <span class="nav-icon">🛡️</span>
+                    <span>Assets</span>
+                </a>
+            </div>
+
+            <div class="nav-section">
+                <div class="nav-section-title">Analysis</div>
+                <a href="#" class="nav-item" onclick="switchTab('subdomains')">
+                    <span class="nav-icon">🌐</span>
+                    <span>Subdomains</span>
+                </a>
+                <a href="#" class="nav-item" onclick="switchTab('ports')">
+                    <span class="nav-icon">📡</span>
+                    <span>Port Scans</span>
+                </a>
+                <a href="#" class="nav-item" onclick="switchTab('reports')">
+                    <span class="nav-icon">📋</span>
+                    <span>Reports</span>
+                </a>
+            </div>
+
+            <div class="nav-section">
+                <div class="nav-section-title">Tools</div>
+                <a href="#" class="nav-item" onclick="switchTab('settings')">
+                    <span class="nav-icon">⚙️</span>
+                    <span>Settings</span>
+                </a>
+                <a href="#" class="nav-item" onclick="switchTab('help')">
+                    <span class="nav-icon">❓</span>
+                    <span>Help & Support</span>
+                </a>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="main-content">
+            <!-- Header -->
+            <div class="header">
+                <div>
+                    <button class="toggle-sidebar" id="toggleBtn" onclick="toggleSidebar()">☰</button>
+                    <h1 class="header-title">Security Dashboard</h1>
+                    <p class="header-subtitle">Comprehensive security assessment and monitoring</p>
+                </div>
+                <div class="header-controls">
+                    <button class="btn btn-secondary" onclick="refreshData()">🔄 Refresh</button>
+                    <button class="btn btn-primary" onclick="runScan()">▶ Run Scan</button>
+                </div>
+            </div>
+
+            <!-- Severity Overview -->
+            <div class="grid grid-4">
+                <div class="card severity-card critical">
+                    <div class="card-header">
+                        <div>
+                            <div class="card-title">Critical</div>
+                            <p class="card-subtitle">Immediate action required</p>
+                        </div>
+                        <div class="card-icon" style="background-color: rgba(239, 68, 68, 0.15); color: var(--danger);">🔴</div>
+                    </div>
+                    <div class="severity-value">2</div>
+                    <span class="severity-label critical">Critical</span>
+                    <div class="progress-bar mt-2">
+                        <div class="progress-fill critical" style="width: 100%"></div>
+                    </div>
+                </div>
+
+                <div class="card severity-card high">
+                    <div class="card-header">
+                        <div>
+                            <div class="card-title">High</div>
+                            <p class="card-subtitle">Significant risk</p>
+                        </div>
+                        <div class="card-icon" style="background-color: rgba(245, 158, 11, 0.15); color: var(--warning);">🟠</div>
+                    </div>
+                    <div class="severity-value">5</div>
+                    <span class="severity-label high">High</span>
+                    <div class="progress-bar mt-2">
+                        <div class="progress-fill high" style="width: 63%"></div>
+                    </div>
+                </div>
+
+                <div class="card severity-card medium">
+                    <div class="card-header">
+                        <div>
+                            <div class="card-title">Medium</div>
+                            <p class="card-subtitle">Moderate risk</p>
+                        </div>
+                        <div class="card-icon" style="background-color: rgba(249, 115, 22, 0.15); color: #f97316;">🟡</div>
+                    </div>
+                    <div class="severity-value">6</div>
+                    <span class="severity-label medium">Medium</span>
+                    <div class="progress-bar mt-2">
+                        <div class="progress-fill medium" style="width: 75%"></div>
+                    </div>
+                </div>
+
+                <div class="card severity-card low">
+                    <div class="card-header">
+                        <div>
+                            <div class="card-title">Low</div>
+                            <p class="card-subtitle">Minor concerns</p>
+                        </div>
+                        <div class="card-icon" style="background-color: rgba(6, 182, 212, 0.15); color: var(--info);">🔵</div>
+                    </div>
+                    <div class="severity-value">4</div>
+                    <span class="severity-label low">Low</span>
+                    <div class="progress-bar mt-2">
+                        <div class="progress-fill low" style="width: 50%"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Main Stats and Activity -->
+            <div class="grid grid-2" style="margin-top: 2rem;">
+                <!-- Scan Statistics -->
+                <div class="card">
+                    <div class="card-header">
+                        <div>
+                            <div class="card-title">Scan Statistics</div>
+                            <p class="card-subtitle">Last 30 days</p>
+                        </div>
+                    </div>
+                    <div class="stats-grid">
+                        <div class="stat-item">
+                            <span class="stat-label">Total Scans</span>
+                            <span class="stat-value">42</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-label">Total Vulnerabilities</span>
+                            <span class="stat-value">17</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-label">Endpoints Scanned</span>
+                            <span class="stat-value">156</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-label">Subdomains Found</span>
+                            <span class="stat-value">92</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-label">Open Ports</span>
+                            <span class="stat-value">23</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-label">Compliance Status</span>
+                            <span class="stat-badge success">✓ Passing</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Security Score -->
+                <div class="card">
+                    <div class="card-header">
+                        <div>
+                            <div class="card-title">Overall Security Score</div>
+                            <p class="card-subtitle">Risk assessment</p>
+                        </div>
+                    </div>
+                    <div style="text-align: center; padding: 1rem 0;">
+                        <div style="font-size: 64px; font-weight: 700; background: linear-gradient(135deg, #3b82f6 0%, #06b6d4 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;">75</div>
+                        <div style="color: var(--text-muted); margin-top: 0.5rem; font-size: 14px;">Out of 100</div>
+                        <div style="margin-top: 1rem;">
+                            <div class="progress-bar" style="height: 8px; margin: 0 auto; max-width: 200px;">
+                                <div class="progress-fill" style="width: 75%; background: linear-gradient(90deg, #3b82f6 0%, #06b6d4 100%);"></div>
+                            </div>
+                        </div>
+                        <div style="margin-top: 1rem; font-size: 12px; color: var(--text-muted);">Status: <span style="color: #10b981;">Good</span></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Recent Vulnerabilities and Activity -->
+            <div class="grid grid-2" style="margin-top: 1.5rem; margin-bottom: 2rem;">
+                <!-- Recent Vulnerabilities -->
+                <div class="card">
+                    <div class="card-header">
+                        <div>
+                            <div class="card-title">Recent Vulnerabilities</div>
+                            <p class="card-subtitle">Latest findings</p>
+                        </div>
+                    </div>
+                    <ul class="activity-list">
+                        <li class="activity-item">
+                            <div class="activity-dot critical"></div>
+                            <div class="activity-content">
+                                <div class="activity-title">SQL Injection</div>
+                                <div class="activity-description">Critical vulnerability in login form</div>
+                                <div class="activity-time">2 hours ago</div>
+                            </div>
+                        </li>
+                        <li class="activity-item">
+                            <div class="activity-dot high"></div>
+                            <div class="activity-content">
+                                <div class="activity-title">Weak SSL Certificate</div>
+                                <div class="activity-description">TLS 1.0 protocol detected</div>
+                                <div class="activity-time">5 hours ago</div>
+                            </div>
+                        </li>
+                        <li class="activity-item">
+                            <div class="activity-dot medium"></div>
+                            <div class="activity-content">
+                                <div class="activity-title">Exposed API Key</div>
+                                <div class="activity-description">API key found in public repository</div>
+                                <div class="activity-time">1 day ago</div>
+                            </div>
+                        </li>
+                        <li class="activity-item">
+                            <div class="activity-dot low"></div>
+                            <div class="activity-content">
+                                <div class="activity-title">Outdated Library</div>
+                                <div class="activity-description">jQuery 1.9 with known CVEs</div>
+                                <div class="activity-time">3 days ago</div>
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+
+                <!-- Recent Scan Activity -->
+                <div class="card">
+                    <div class="card-header">
+                        <div>
+                            <div class="card-title">Recent Activity</div>
+                            <p class="card-subtitle">Scan operations</p>
+                        </div>
+                    </div>
+                    <ul class="activity-list">
+                        <li class="activity-item">
+                            <div class="activity-dot" style="background-color: var(--success);"></div>
+                            <div class="activity-content">
+                                <div class="activity-title">Vulnerability Scan Completed</div>
+                                <div class="activity-description">Found 17 vulnerabilities across 12 endpoints</div>
+                                <div class="activity-time">2 hours ago</div>
+                            </div>
+                        </li>
+                        <li class="activity-item">
+                            <div class="activity-dot" style="background-color: var(--success);"></div>
+                            <div class="activity-content">
+                                <div class="activity-title">Port Scan Completed</div>
+                                <div class="activity-description">23 open ports identified</div>
+                                <div class="activity-time">4 hours ago</div>
+                            </div>
+                        </li>
+                        <li class="activity-item">
+                            <div class="activity-dot" style="background-color: var(--success);"></div>
+                            <div class="activity-content">
+                                <div class="activity-title">Subdomain Enumeration Done</div>
+                                <div class="activity-description">92 subdomains discovered for example.com</div>
+                                <div class="activity-time">6 hours ago</div>
+                            </div>
+                        </li>
+                        <li class="activity-item">
+                            <div class="activity-dot" style="background-color: var(--success);"></div>
+                            <div class="activity-content">
+                                <div class="activity-title">Daily Security Report</div>
+                                <div class="activity-description">Report generated and exported</div>
+                                <div class="activity-time">Yesterday</div>
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Toggle sidebar on mobile
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            sidebar.classList.toggle('open');
+        }
+
+        // Close sidebar when navigation item is clicked on mobile
+        document.querySelectorAll('.nav-item').forEach(item => {
+            item.addEventListener('click', () => {
+                const sidebar = document.getElementById('sidebar');
+                if (window.innerWidth <= 768) {
+                    sidebar.classList.remove('open');
+                }
+            });
+        });
+
+        // Switch tab functionality
+        function switchTab(tab) {
+            // Remove active class from all nav items
+            document.querySelectorAll('.nav-item').forEach(item => {
+                item.classList.remove('active');
+            });
+
+            // Add active class to clicked item
+            event.target.closest('.nav-item').classList.add('active');
+
+            // Show notification
+            showNotification(`Navigating to ${tab} section...`);
+        }
+
+        // Refresh data
+        function refreshData() {
+            showNotification('Refreshing security data...');
+            setTimeout(() => {
+                showNotification('Security data updated successfully!', 'success');
+            }, 1500);
+        }
+
+        // Run scan
+        function runScan() {
+            showNotification('Starting security scan...');
+            setTimeout(() => {
+                showNotification('Scan completed! Found 17 vulnerabilities.', 'warning');
+            }, 3000);
+        }
+
+        // Show notification
+        function showNotification(message, type = 'info') {
+            const notification = document.createElement('div');
+            notification.style.cssText = `
+                position: fixed;
+                top: 20px;
+                right: 20px;
+                padding: 1rem 1.5rem;
+                background-color: var(--secondary);
+                border: 1px solid var(--border);
+                border-left: 3px solid;
+                border-radius: 6px;
+                color: var(--text);
+                font-size: 13px;
+                font-weight: 500;
+                box-shadow: var(--shadow-lg);
+                z-index: 3000;
+                animation: slideIn 0.3s ease forwards;
+            `;
+
+            if (type === 'success') {
+                notification.style.borderLeftColor = 'var(--success)';
+                message = '✓ ' + message;
+            } else if (type === 'warning') {
+                notification.style.borderLeftColor = 'var(--warning)';
+                message = '⚠ ' + message;
+            } else {
+                notification.style.borderLeftColor = 'var(--accent)';
+                message = 'ℹ ' + message;
+            }
+
+            notification.textContent = message;
+
+            // Add animation
+            const style = document.createElement('style');
+            if (!document.getElementById('notificationStyles')) {
+                style.id = 'notificationStyles';
+                style.textContent = `
+                    @keyframes slideIn {
+                        from {
+                            opacity: 0;
+                            transform: translateX(100px);
+                        }
+                        to {
+                            opacity: 1;
+                            transform: translateX(0);
+                        }
+                    }
+                `;
+                document.head.appendChild(style);
+            }
+
+            document.body.appendChild(notification);
+
+            setTimeout(() => {
+                notification.style.animation = 'slideIn 0.3s ease reverse forwards';
+                setTimeout(() => notification.remove(), 300);
+            }, 3000);
+        }
+
+        // Close sidebar when clicking outside on mobile
+        document.addEventListener('click', (e) => {
+            const sidebar = document.getElementById('sidebar');
+            const toggleBtn = document.getElementById('toggleBtn');
+            if (window.innerWidth <= 768 && !sidebar.contains(e.target) && !toggleBtn.contains(e.target)) {
+                sidebar.classList.remove('open');
+            }
+        });
+
+        // Initialize
+        window.addEventListener('load', () => {
+            showNotification('Dashboard loaded successfully!', 'success');
+        });
+    </script>
+</body>
+</html>

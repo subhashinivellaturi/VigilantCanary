@@ -1,0 +1,101 @@
+.vc-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 12px 24px;
+  border-radius: 8px;
+  border: none;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 200ms ease-in-out;
+  position: relative;
+  overflow: hidden;
+  letter-spacing: 0.5px;
+  white-space: nowrap;
+  height: 44px;
+}
+
+.vc-button:focus {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(0, 102, 255, 0.1);
+}
+
+/* Primary variant */
+.vc-button--primary {
+  background-color: #0066ff;
+  color: white;
+  border: 1px solid transparent;
+}
+
+.vc-button--primary:hover {
+  background-color: #0052cc;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 102, 255, 0.3);
+}
+
+.vc-button--primary:active {
+  transform: translateY(0);
+}
+
+/* Secondary variant (ghost) */
+.vc-button--ghost {
+  background-color: transparent;
+  color: #0066ff;
+  border: 1px solid #0066ff;
+}
+
+.vc-button--ghost:hover {
+  background-color: rgba(0, 102, 255, 0.08);
+  border-color: #0052cc;
+}
+
+/* Danger variant */
+.vc-button--danger {
+  background-color: #dc3545;
+  color: white;
+  border: 1px solid transparent;
+}
+
+.vc-button--danger:hover {
+  background-color: #c82333;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(220, 53, 69, 0.3);
+}
+
+.vc-button--danger:active {
+  transform: translateY(0);
+}
+
+/* Disabled state */
+.vc-button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.vc-button:disabled:hover {
+  transform: none;
+  box-shadow: none;
+}
+
+/* Size variants */
+.vc-button--sm {
+  padding: 8px 16px;
+  font-size: 12px;
+  height: 36px;
+}
+
+.vc-button--lg {
+  padding: 16px 32px;
+  font-size: 16px;
+  height: 52px;
+}
+
+/* Icon-only button */
+.vc-button--icon {
+  padding: 8px;
+  width: 44px;
+  height: 44px;
+}

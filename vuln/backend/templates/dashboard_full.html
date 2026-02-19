@@ -1,0 +1,191 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Vigilant Canary — Security Dashboard</title>
+  <link rel="stylesheet" href="/static/dashboard_full.css" />
+</head>
+<body class="theme-dark">
+  <div class="app" id="app">
+    <aside class="sidebar" id="sidebar" aria-label="Main navigation">
+      <div class="brand">
+        <h1>Vigilant Canary</h1>
+        <button id="sidebar-toggle" class="sidebar-toggle" aria-label="Toggle navigation">☰</button>
+      </div>
+      <nav class="nav" role="navigation" aria-label="Primary">
+        <a href="/dashboard/full" class="nav-item active" data-section="dashboard">Dashboard</a>
+        <a href="#" class="nav-item" data-section="vuln">Vulnerability Scanner</a>
+        <a href="#" class="nav-item" data-section="port">Port Scanner</a>
+        <a href="#" class="nav-item" data-section="subdomain">Subdomain Finder</a>
+        <a href="#" class="nav-item" data-section="history">Scan History</a>
+        <a href="#" class="nav-item" data-section="reports">Reports</a>
+      </nav>
+      <div class="sidebar-footer">
+        <button id="refresh-data" class="btn ghost" aria-label="Refresh data">Refresh</button>
+      </div>
+    </aside>
+
+    <main class="main" id="main" role="main">
+      <header class="topbar">
+        <div class="search">
+          <input type="search" placeholder="Search targets, urls, findings..." aria-label="Search" />
+        </div>
+        <div class="actions">
+          <button id="btn-notifs" class="icon-btn" aria-label="Notifications">🔔</button>
+          <button id="btn-user" class="icon-btn" aria-label="Account">👤</button>
+        </div>
+      </header>
+
+      <section class="panel panel-grid">
+        <!-- Severity Cards -->
+        <section class="severity-dashboard" aria-label="Risk severity summary">
+          <article class="severity-card critical" data-severity="critical" tabindex="0" aria-live="polite">
+            <div class="severity-icon" aria-hidden>🔥</div>
+            <div class="severity-meta">
+              <div class="severity-label">Critical</div>
+              <div class="severity-count" data-count="0" aria-label="critical count">0</div>
+            </div>
+            <div class="severity-trend"><span class="trend-up">↑</span> <span class="trend-num">0</span> new</div>
+          </article>
+
+          <article class="severity-card high" data-severity="high" tabindex="0">
+            <div class="severity-icon" aria-hidden>⚠️</div>
+            <div class="severity-meta">
+              <div class="severity-label">High</div>
+              <div class="severity-count" data-count="0" aria-label="high count">0</div>
+            </div>
+            <div class="severity-trend"><span class="trend-up">↑</span> <span class="trend-num">0</span> new</div>
+          </article>
+
+          <article class="severity-card medium" data-severity="medium" tabindex="0">
+            <div class="severity-icon" aria-hidden>⚡</div>
+            <div class="severity-meta">
+              <div class="severity-label">Medium</div>
+              <div class="severity-count" data-count="0" aria-label="medium count">0</div>
+            </div>
+            <div class="severity-trend"><span class="trend-down">⬇</span> <span class="trend-num">0</span> change</div>
+          </article>
+
+          <article class="severity-card low" data-severity="low" tabindex="0">
+            <div class="severity-icon" aria-hidden>✅</div>
+            <div class="severity-meta">
+              <div class="severity-label">Low</div>
+              <div class="severity-count" data-count="0" aria-label="low count">0</div>
+            </div>
+            <div class="severity-trend muted">Stable</div>
+          </article>
+        </section>
+
+        <!-- Recent Scans -->
+        <section class="recent-scans panel-card" aria-label="Recent scans">
+          <div class="panel-header">
+            <h2>Recent Scans</h2>
+            <div class="panel-actions">
+              <button class="btn ghost" id="btn-new-scan">New Scan</button>
+            </div>
+          </div>
+
+          <div class="table-wrapper" role="region" aria-label="Recent scans table">
+            <table class="scans-table" aria-describedby="recent-scans-note">
+              <thead>
+                <tr>
+                  <th scope="col">Target</th>
+                  <th scope="col">Scan Type</th>
+                  <th scope="col">Status</th>
+                  <th scope="col">When</th>
+                  <th scope="col">Actions</th>
+                </tr>
+              </thead>
+              <tbody id="recent-scans-body">
+                <!-- Rows inserted via JS -->
+              </tbody>
+            </table>
+            <div id="recent-scans-note" class="muted small">Live updates, sorted by time.</div>
+          </div>
+        </section>
+
+        <!-- Port Scanner -->
+        <section class="port-scanner panel-card" aria-label="Port scanner">
+          <div class="panel-header">
+            <h2>Port Scanner</h2>
+          </div>
+          <form class="scanner-controls" id="port-form" onsubmit="return false;" aria-label="Port scanning controls">
+            <input type="text" id="port-target" class="scan-input" placeholder="Enter IP or domain..." aria-label="Target host" />
+            <select id="port-preset" class="port-presets" aria-label="Port presets">
+              <option value="common">Common Ports</option>
+              <option value="1-1000">Full Scan (1-1000)</option>
+            </select>
+            <button class="btn primary" id="btn-scan">Start Scan</button>
+          </form>
+
+          <div class="scan-results" id="port-results" aria-live="polite">
+            <!-- result items appended here -->
+          </div>
+        </section>
+
+        <!-- Risks Feed -->
+        <section class="risks-panel panel-card" aria-label="Latest risks">
+          <div class="panel-header"><h2>Recent Risks</h2></div>
+          <div id="risks-list" class="risks-list" role="feed" aria-live="polite">
+            <!-- risk items inserted via JS -->
+          </div>
+        </section>
+
+        <!-- Subdomain Finder -->
+        <section class="subdomain-finder panel-card" aria-label="Subdomain finder">
+          <div class="panel-header"><h2>Subdomain Finder</h2></div>
+          <div class="finder-input">
+            <input type="text" id="subdomain-input" placeholder="example.com" aria-label="Base domain" />
+            <button class="btn" id="btn-enumerate">Find Subdomains</button>
+          </div>
+          <div class="subdomain-results" id="subdomain-results" aria-live="polite">
+            <!-- domain chips -->
+          </div>
+        </section>
+
+        <!-- Report Generator -->
+        <section class="report-generator panel-card" aria-label="Report generator">
+          <div class="panel-header"><h2>Report Generator</h2></div>
+          <div class="report-options">
+            <label><input type="checkbox" checked id="include-vuln" /> Include Vulnerabilities</label>
+            <label><input type="checkbox" checked id="include-ports" /> Include Open Ports</label>
+            <select id="report-format" class="format-select" aria-label="Report format">
+              <option>PDF</option>
+              <option>CSV</option>
+              <option>JSON</option>
+            </select>
+            <button class="btn primary" id="btn-generate">Generate Report</button>
+          </div>
+          <div class="report-preview" id="report-preview">No preview yet</div>
+        </section>
+
+        <!-- Analysis Overview -->
+        <section class="analysis-dashboard panel-card" aria-label="Website analysis">
+          <div class="analysis-card">
+            <h3>Security Headers</h3>
+            <div class="score-circle" role="img" aria-label="Security headers score" data-score="0">0%</div>
+            <div class="header-list" id="header-list">
+              <!-- header items -->
+            </div>
+          </div>
+
+          <div class="analysis-card">
+            <h3>Technology Stack</h3>
+            <div class="tech-tags" id="tech-tags">
+              <!-- tech tags -->
+            </div>
+          </div>
+        </section>
+
+      </section>
+
+      <div id="toast-container" aria-live="polite" class="toast-container" hidden></div>
+
+      <footer class="footer">© Vigilant Canary</footer>
+    </main>
+  </div>
+
+  <script src="/static/dashboard_full.js" defer></script>
+</body>
+</html>

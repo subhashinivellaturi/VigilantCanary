@@ -1,0 +1,79 @@
+.vc-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 9999px;
+  font-weight: 600;
+  transition: all 200ms ease-in-out;
+  white-space: nowrap;
+  letter-spacing: 0.5px;
+  font-size: 12px;
+}
+
+/* Size variants */
+.vc-badge--sm {
+  padding: 4px 12px;
+  font-size: 12px;
+}
+
+.vc-badge--md {
+  padding: 6px 16px;
+  font-size: 14px;
+}
+
+/* Color variants */
+.vc-badge--default {
+  background-color: #f8f9fa;
+  color: #212529;
+  border: 1px solid #e9ecef;
+}
+
+.vc-badge--success {
+  background-color: #d4edda;
+  color: #155724;
+  border: 1px solid #c3e6cb;
+}
+
+.vc-badge--danger {
+  background-color: #f8d7da;
+  color: #721c24;
+  border: 1px solid #f5c6cb;
+}
+
+.vc-badge--warning {
+  background-color: #fff3cd;
+  color: #856404;
+  border: 1px solid #ffeeba;
+}
+
+.vc-badge--info {
+  background-color: #d1ecf1;
+  color: #0c5460;
+  border: 1px solid #bee5eb;
+}
+
+/* Hover states */
+.vc-badge--default:hover {
+  background-color: #e9ecef;
+  border-color: #dee2e6;
+}
+
+.vc-badge--success:hover {
+  background-color: #c3e6cb;
+  border-color: #b1dfbb;
+}
+
+.vc-badge--danger:hover {
+  background-color: #f5c6cb;
+  border-color: #f1b0b7;
+}
+
+.vc-badge--warning:hover {
+  background-color: #ffeeba;
+  border-color: #ffda6a;
+}
+
+.vc-badge--info:hover {
+  background-color: #bee5eb;
+  border-color: #a8dfe3;
+}

@@ -1,0 +1,11 @@
+.vc-breadcrumb{display:flex;align-items:center;gap:2px;padding:10px 0;font-size:0.9rem;color:#94a3b8}
+.breadcrumb-item{display:flex;align-items:center;gap:8px}
+.breadcrumb-link{display:flex;align-items:center;gap:6px;color:#0ea5a9;text-decoration:none;transition:color .2s}
+.breadcrumb-link:hover{color:#22d3ee}
+.breadcrumb-current{color:#e6eef6;font-weight:500}
+.breadcrumb-sep{color:rgba(255,255,255,0.1)}
+
+@media (max-width: 768px){
+  .vc-breadcrumb{font-size:0.85rem;gap:0}
+  .breadcrumb-link span{display:none}
+}

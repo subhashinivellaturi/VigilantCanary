@@ -1,0 +1,76 @@
+.vc-empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 48px 32px;
+  text-align: center;
+  min-height: 300px;
+  background: linear-gradient(135deg, #f8f9fa 0%, #f0f3f7 100%);
+  border-radius: 12px;
+  border: 1px dashed #e9ecef;
+  gap: 16px;
+}
+
+.vc-empty-state__icon {
+  width: 64px;
+  height: 64px;
+  color: #abb5be;
+  animation: fadeIn 400ms ease-out;
+  margin: 0;
+}
+
+.vc-empty-state__title {
+  font-size: 18px;
+  font-weight: 600;
+  color: #212529;
+  margin: 0;
+  letter-spacing: -0.01em;
+  line-height: 1.2;
+}
+
+.vc-empty-state__description {
+  font-size: 14px;
+  color: #6c757d;
+  margin: 0;
+  max-width: 320px;
+  line-height: 1.5;
+}
+
+.vc-empty-state__action {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 24px;
+  background: #0066ff;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 200ms ease-in-out;
+  margin-top: 8px;
+  height: 44px;
+}
+
+.vc-empty-state__action:hover {
+  background: #0052cc;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 102, 255, 0.3);
+}
+
+.vc-empty-state__action:active {
+  transform: translateY(0);
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: scale(0.9);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}

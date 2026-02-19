@@ -1,0 +1,612 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vigilant Canary - Security Dashboard</title>
+    <style>
+        /* Reset and base styles */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #0a0a0a;
+            color: #e0e0e0;
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+
+        /* Layout */
+        .dashboard-container {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            width: 280px;
+            background-color: #1a1a1a;
+            border-right: 1px solid #333;
+            padding: 20px 0;
+            position: fixed;
+            height: 100vh;
+            overflow-y: auto;
+            transition: transform 0.3s ease;
+            z-index: 1000;
+        }
+
+        .sidebar-header {
+            padding: 0 20px 30px;
+            border-bottom: 1px solid #333;
+            margin-bottom: 20px;
+        }
+
+        .sidebar-logo {
+            font-size: 24px;
+            font-weight: bold;
+            color: #00d4aa;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .sidebar-logo::before {
+            content: "🛡️";
+            font-size: 28px;
+        }
+
+        .sidebar-nav {
+            list-style: none;
+        }
+
+        .sidebar-nav li {
+            margin-bottom: 5px;
+        }
+
+        .sidebar-nav a {
+            display: flex;
+            align-items: center;
+            padding: 12px 20px;
+            color: #b0b0b0;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            border-left: 3px solid transparent;
+        }
+
+        .sidebar-nav a:hover,
+        .sidebar-nav a.active {
+            background-color: #2a2a2a;
+            color: #ffffff;
+            border-left-color: #00d4aa;
+        }
+
+        .sidebar-nav a::before {
+            content: "";
+            width: 20px;
+            height: 20px;
+            margin-right: 12px;
+            background-size: contain;
+            background-repeat: no-repeat;
+            background-position: center;
+            opacity: 0.7;
+        }
+
+        .sidebar-nav a[href="#dashboard"]::before { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23b0b0b0'%3E%3Cpath d='M3 13h8V3H3v10zm0 8h8v-6H3v6zm10 0h8V11h-8v10zm0-18v6h8V3h-8z'/%3E%3C/svg%3E"); }
+        .sidebar-nav a[href="#scans"]::before { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23b0b0b0'%3E%3Cpath d='M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z'/%3E%3C/svg%3E"); }
+        .sidebar-nav a[href="#vulnerabilities"]::before { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23b0b0b0'%3E%3Cpath d='M12 2L3.09 21h17.82L12 2zM13 18h-2v-2h2v2zm0-4h-2v-4h2v4z'/%3E%3C/svg%3E"); }
+        .sidebar-nav a[href="#reports"]::before { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23b0b0b0'%3E%3Cpath d='M14,2H6A2,2 0 0,0 4,4V20A2,2 0 0,0 6,22H18A2,2 0 0,0 20,20V8L14,2M18,20H6V4H13V9H18V20Z'/%3E%3C/svg%3E"); }
+        .sidebar-nav a[href="#settings"]::before { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23b0b0b0'%3E%3Cpath d='M12,8A4,4 0 0,1 16,12A4,4 0 0,1 12,16A4,4 0 0,1 8,12A4,4 0 0,1 12,8M12,10A2,2 0 0,0 10,12A2,2 0 0,0 12,14A2,2 0 0,0 14,12A2,2 0 0,0 12,10M12,2L13.09,8.26L20,9L13.09,9.74L12,16L10.91,9.74L4,9L10.91,8.26L12,2Z'/%3E%3C/svg%3E"); }
+
+        /* Main content */
+        .main-content {
+            flex: 1;
+            margin-left: 280px;
+            transition: margin-left 0.3s ease;
+        }
+
+        .header {
+            background-color: #1a1a1a;
+            border-bottom: 1px solid #333;
+            padding: 20px 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .header-title {
+            font-size: 28px;
+            font-weight: 600;
+            color: #ffffff;
+        }
+
+        .header-actions {
+            display: flex;
+            gap: 15px;
+            align-items: center;
+        }
+
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-primary {
+            background-color: #00d4aa;
+            color: #000000;
+        }
+
+        .btn-primary:hover {
+            background-color: #00b894;
+            transform: translateY(-1px);
+        }
+
+        .btn-secondary {
+            background-color: #333;
+            color: #e0e0e0;
+            border: 1px solid #555;
+        }
+
+        .btn-secondary:hover {
+            background-color: #444;
+        }
+
+        /* Dashboard content */
+        .dashboard-content {
+            padding: 30px;
+        }
+
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 25px;
+            margin-bottom: 40px;
+        }
+
+        .card {
+            background-color: #1a1a1a;
+            border: 1px solid #333;
+            border-radius: 12px;
+            padding: 25px;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .card-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: #ffffff;
+        }
+
+        .card-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+        }
+
+        .card-value {
+            font-size: 36px;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        .card-description {
+            color: #b0b0b0;
+            font-size: 14px;
+        }
+
+        /* Severity color coding */
+        .severity-critical {
+            border-left: 4px solid #dc3545;
+        }
+
+        .severity-critical .card-icon {
+            background-color: rgba(220, 53, 69, 0.2);
+            color: #dc3545;
+        }
+
+        .severity-high {
+            border-left: 4px solid #fd7e14;
+        }
+
+        .severity-high .card-icon {
+            background-color: rgba(253, 126, 20, 0.2);
+            color: #fd7e14;
+        }
+
+        .severity-medium {
+            border-left: 4px solid #ffc107;
+        }
+
+        .severity-medium .card-icon {
+            background-color: rgba(255, 193, 7, 0.2);
+            color: #ffc107;
+        }
+
+        .severity-low {
+            border-left: 4px solid #17a2b8;
+        }
+
+        .severity-low .card-icon {
+            background-color: rgba(23, 162, 184, 0.2);
+            color: #17a2b8;
+        }
+
+        .severity-info {
+            border-left: 4px solid #6c757d;
+        }
+
+        .severity-info .card-icon {
+            background-color: rgba(108, 117, 125, 0.2);
+            color: #6c757d;
+        }
+
+        /* Recent activity section */
+        .recent-activity {
+            background-color: #1a1a1a;
+            border: 1px solid #333;
+            border-radius: 12px;
+            padding: 25px;
+            margin-bottom: 30px;
+        }
+
+        .section-title {
+            font-size: 22px;
+            font-weight: 600;
+            color: #ffffff;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .activity-list {
+            list-style: none;
+        }
+
+        .activity-item {
+            display: flex;
+            align-items: center;
+            padding: 15px 0;
+            border-bottom: 1px solid #333;
+        }
+
+        .activity-item:last-child {
+            border-bottom: none;
+        }
+
+        .activity-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 15px;
+            font-size: 16px;
+        }
+
+        .activity-content {
+            flex: 1;
+        }
+
+        .activity-title {
+            font-weight: 500;
+            color: #ffffff;
+            margin-bottom: 5px;
+        }
+
+        .activity-meta {
+            color: #b0b0b0;
+            font-size: 14px;
+        }
+
+        /* Charts placeholder */
+        .chart-placeholder {
+            height: 200px;
+            background-color: #2a2a2a;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #666;
+            font-style: italic;
+        }
+
+        /* Mobile menu toggle */
+        .mobile-menu-toggle {
+            display: none;
+            background: none;
+            border: none;
+            color: #e0e0e0;
+            font-size: 24px;
+            cursor: pointer;
+            padding: 10px;
+        }
+
+        /* Responsive design */
+        @media (max-width: 768px) {
+            .sidebar {
+                transform: translateX(-100%);
+            }
+
+            .sidebar.open {
+                transform: translateX(0);
+            }
+
+            .main-content {
+                margin-left: 0;
+            }
+
+            .mobile-menu-toggle {
+                display: block;
+            }
+
+            .dashboard-content {
+                padding: 20px 15px;
+            }
+
+            .header {
+                padding: 15px 20px;
+            }
+
+            .header-title {
+                font-size: 24px;
+            }
+
+            .dashboard-grid {
+                grid-template-columns: 1fr;
+                gap: 20px;
+            }
+
+            .card {
+                padding: 20px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .header-actions {
+                flex-direction: column;
+                gap: 10px;
+            }
+
+            .btn {
+                width: 100%;
+                justify-content: center;
+            }
+        }
+
+        /* Animations */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .card {
+            animation: fadeIn 0.5s ease-out;
+        }
+
+        .card:nth-child(1) { animation-delay: 0.1s; }
+        .card:nth-child(2) { animation-delay: 0.2s; }
+        .card:nth-child(3) { animation-delay: 0.3s; }
+        .card:nth-child(4) { animation-delay: 0.4s; }
+        .card:nth-child(5) { animation-delay: 0.5s; }
+        .card:nth-child(6) { animation-delay: 0.6s; }
+    </style>
+</head>
+<body>
+    <div class="dashboard-container">
+        <!-- Sidebar Navigation -->
+        <aside class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <div class="sidebar-logo">
+                    Vigilant Canary
+                </div>
+            </div>
+            <nav>
+                <ul class="sidebar-nav">
+                    <li><a href="#dashboard" class="active">Dashboard</a></li>
+                    <li><a href="#scans">Scans</a></li>
+                    <li><a href="#vulnerabilities">Vulnerabilities</a></li>
+                    <li><a href="#reports">Reports</a></li>
+                    <li><a href="#settings">Settings</a></li>
+                </ul>
+            </nav>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Header -->
+            <header class="header">
+                <button class="mobile-menu-toggle" id="mobileMenuToggle">☰</button>
+                <h1 class="header-title">Security Dashboard</h1>
+                <div class="header-actions">
+                    <button class="btn btn-secondary">Export Report</button>
+                    <button class="btn btn-primary">New Scan</button>
+                </div>
+            </header>
+
+            <!-- Dashboard Content -->
+            <div class="dashboard-content">
+                <!-- Severity Cards -->
+                <div class="dashboard-grid">
+                    <div class="card severity-critical">
+                        <div class="card-header">
+                            <h3 class="card-title">Critical Vulnerabilities</h3>
+                            <div class="card-icon">🚨</div>
+                        </div>
+                        <div class="card-value">12</div>
+                        <p class="card-description">Immediate attention required</p>
+                    </div>
+
+                    <div class="card severity-high">
+                        <div class="card-header">
+                            <h3 class="card-title">High Risk</h3>
+                            <div class="card-icon">⚠️</div>
+                        </div>
+                        <div class="card-value">28</div>
+                        <p class="card-description">High priority fixes needed</p>
+                    </div>
+
+                    <div class="card severity-medium">
+                        <div class="card-header">
+                            <h3 class="card-title">Medium Risk</h3>
+                            <div class="card-icon">🟡</div>
+                        </div>
+                        <div class="card-value">45</div>
+                        <p class="card-description">Should be addressed soon</p>
+                    </div>
+
+                    <div class="card severity-low">
+                        <div class="card-header">
+                            <h3 class="card-title">Low Risk</h3>
+                            <div class="card-icon">🔵</div>
+                        </div>
+                        <div class="card-value">67</div>
+                        <p class="card-description">Monitor and plan fixes</p>
+                    </div>
+
+                    <div class="card severity-info">
+                        <div class="card-header">
+                            <h3 class="card-title">Total Scans</h3>
+                            <div class="card-icon">📊</div>
+                        </div>
+                        <div class="card-value">152</div>
+                        <p class="card-description">Scans completed this month</p>
+                    </div>
+
+                    <div class="card severity-info">
+                        <div class="card-header">
+                            <h3 class="card-title">Active Assets</h3>
+                            <div class="card-icon">🖥️</div>
+                        </div>
+                        <div class="card-value">89</div>
+                        <p class="card-description">Systems under monitoring</p>
+                    </div>
+                </div>
+
+                <!-- Recent Activity -->
+                <section class="recent-activity">
+                    <h2 class="section-title">
+                        🕒 Recent Activity
+                    </h2>
+                    <ul class="activity-list">
+                        <li class="activity-item">
+                            <div class="activity-icon" style="background-color: rgba(220, 53, 69, 0.2); color: #dc3545;">🚨</div>
+                            <div class="activity-content">
+                                <div class="activity-title">Critical vulnerability detected in web-server-01</div>
+                                <div class="activity-meta">2 hours ago • CVE-2024-12345</div>
+                            </div>
+                        </li>
+                        <li class="activity-item">
+                            <div class="activity-icon" style="background-color: rgba(253, 126, 20, 0.2); color: #fd7e14;">⚠️</div>
+                            <div class="activity-content">
+                                <div class="activity-title">High-risk port exposure found on database-server</div>
+                                <div class="activity-meta">4 hours ago • Port 3306 open</div>
+                            </div>
+                        </li>
+                        <li class="activity-item">
+                            <div class="activity-icon" style="background-color: rgba(0, 212, 170, 0.2); color: #00d4aa;">✅</div>
+                            <div class="activity-content">
+                                <div class="activity-title">Security scan completed for staging environment</div>
+                                <div class="activity-meta">6 hours ago • 3 vulnerabilities found</div>
+                            </div>
+                        </li>
+                        <li class="activity-item">
+                            <div class="activity-icon" style="background-color: rgba(23, 162, 184, 0.2); color: #17a2b8;">🔍</div>
+                            <div class="activity-content">
+                                <div class="activity-title">Subdomain enumeration completed for example.com</div>
+                                <div class="activity-meta">8 hours ago • 12 subdomains discovered</div>
+                            </div>
+                        </li>
+                        <li class="activity-item">
+                            <div class="activity-icon" style="background-color: rgba(108, 117, 125, 0.2); color: #6c757d;">📋</div>
+                            <div class="activity-content">
+                                <div class="activity-title">Monthly security report generated</div>
+                                <div class="activity-meta">1 day ago • PDF exported</div>
+                            </div>
+                        </li>
+                    </ul>
+                </section>
+
+                <!-- Charts Section -->
+                <section class="recent-activity">
+                    <h2 class="section-title">
+                        📈 Security Trends
+                    </h2>
+                    <div class="chart-placeholder">
+                        Interactive charts would be displayed here
+                    </div>
+                </section>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        // Minimal JavaScript for mobile menu toggle
+        document.addEventListener('DOMContentLoaded', function() {
+            const mobileMenuToggle = document.getElementById('mobileMenuToggle');
+            const sidebar = document.getElementById('sidebar');
+
+            if (mobileMenuToggle && sidebar) {
+                mobileMenuToggle.addEventListener('click', function() {
+                    sidebar.classList.toggle('open');
+                });
+
+                // Close sidebar when clicking outside on mobile
+                document.addEventListener('click', function(event) {
+                    if (!sidebar.contains(event.target) && !mobileMenuToggle.contains(event.target)) {
+                        sidebar.classList.remove('open');
+                    }
+                });
+            }
+
+            // Add active class to current navigation item
+            const navLinks = document.querySelectorAll('.sidebar-nav a');
+            navLinks.forEach(link => {
+                link.addEventListener('click', function(e) {
+                    // Remove active class from all links
+                    navLinks.forEach(l => l.classList.remove('active'));
+                    // Add active class to clicked link
+                    this.classList.add('active');
+                });
+            });
+
+            // Simulate real-time updates (for demo purposes)
+            setInterval(() => {
+                // This could be replaced with actual API calls
+                console.log('Dashboard updated');
+            }, 30000);
+        });
+    </script>
+</body>
+</html>
