@@ -204,24 +204,7 @@ def dashboard_full(request: Request):
         raise HTTPException(status_code=500, detail=str(e))
 
 
-# Recent Scans API endpoint
-@router.get("/recent-scans")
-def get_recent_scans_api(limit: int = 50):
-    """
-    Return recent scan records as JSON.
-    
-    Returns:
-    - List of recent scans with target_url, scan_type, status, timestamp, findings
-    """
-    try:
-        scans = scan_db.get_recent_scans(limit=limit)
-        return {
-            "status": "success",
-            "count": len(scans),
-            "scans": scans
-        }
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Failed to fetch recent scans: {str(e)}")
+
 
 
 # Recent Scans HTML page
@@ -247,6 +230,54 @@ def recent_scans_page(request: Request, limit: int = 50):
         raise HTTPException(status_code=500, detail=f"Failed to render recent scans: {str(e)}")
 
 
+# Helper function to parse port specifications
+def parse_ports(port_spec):
+    """
+    Parse port specification from various formats.
+    
+    Supports:
+    - Comma-separated: "21,22,80,443"
+    - Range: "1-1000"
+    - Single port: "80"
+    - List: [21, 22, 80]
+    """
+    if isinstance(port_spec, list):
+        return port_spec
+    
+    if not port_spec:
+        return port_scanner.COMMON_PORTS
+    
+    port_spec = str(port_spec).strip()
+    ports = []
+    
+    try:
+        # Handle comma-separated ports
+        if ',' in port_spec:
+            for part in port_spec.split(','):
+                part = part.strip()
+                if '-' in part:
+                    # Handle range within comma-separated list
+                    start, end = part.split('-')
+                    ports.extend(range(int(start.strip()), int(end.strip()) + 1))
+                else:
+                    ports.append(int(part))
+        # Handle port range
+        elif '-' in port_spec:
+            start, end = port_spec.split('-')
+            ports = list(range(int(start.strip()), int(end.strip()) + 1))
+        # Handle single port
+        else:
+            ports = [int(port_spec)]
+    except (ValueError, AttributeError):
+        return port_scanner.COMMON_PORTS
+    
+    # Limit ports to reasonable range for performance
+    ports = [p for p in ports if 1 <= p <= 65535]
+    if not ports:
+        return port_scanner.COMMON_PORTS
+    
+    return sorted(list(set(ports)))  # Remove duplicates and sort
+
 # Port Scanning endpoint
 @router.post("/scan-ports", response_model=PortScanResponse)
 def scan_ports(request_data: PortScanRequest):
@@ -256,9 +287,14 @@ def scan_ports(request_data: PortScanRequest):
     Safe scanning option - uses common ports (21, 22, 80, 443, 3306, 8080)
     or custom port list. Falls back to socket scanning if nmap unavailable.
     
+    Accepts ports in multiple formats:
+    - Comma-separated: "21,22,80,443"
+    - Range: "1-1000"
+    - List: [21, 22, 80]
+    
     Args:
         target: IP address or hostname to scan
-        ports: Optional list of ports (defaults to common ports)
+        ports: Optional list or string of ports (defaults to common ports)
     
     Returns:
         PortScanResponse with open ports found and risk assessment
@@ -268,7 +304,9 @@ def scan_ports(request_data: PortScanRequest):
         from uuid import uuid4
         
         target = request_data.target.strip()
-        ports = request_data.ports if request_data.ports else port_scanner.COMMON_PORTS
+        
+        # Parse ports from various formats
+        ports = parse_ports(request_data.ports)
         
         # Validate target
         if not target:
@@ -327,26 +365,7 @@ def scan_ports(request_data: PortScanRequest):
         raise HTTPException(status_code=500, detail=f"Port scan failed: {str(e)}")
 
 
-# Get recent port scans
-@router.get("/recent-port-scans")
-def get_recent_port_scans(limit: int = 10):
-    """
-    Get recent port scan results.
-    
-    Returns list of recent port scans with:
-    - Target host
-    - Open ports found
-    - Scan timestamp
-    """
-    try:
-        scans = scan_db.get_recent_port_scans(limit=limit)
-        return {
-            "status": "success",
-            "count": len(scans),
-            "scans": scans
-        }
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Failed to fetch port scans: {str(e)}")
+
 
 
 @router.post("/analyze", response_model=VulnerabilityResponse)

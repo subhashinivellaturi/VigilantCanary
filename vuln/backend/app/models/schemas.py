@@ -318,7 +318,7 @@ class FeedbackResponse(BaseModel):
 class PortScanRequest(BaseModel):
     """Request to scan open ports on a host."""
     target: str = Field(..., description="Target IP address or hostname", examples=["192.168.1.1", "example.com"])
-    ports: Optional[List[int]] = Field(default=None, description="Specific ports to scan (defaults to common ports)")
+    ports: Optional[str | List[int]] = Field(default=None, description="Specific ports to scan - can be comma-separated (21,22,80) or a range (1-1000)")
 
 
 class OpenPort(BaseModel):
